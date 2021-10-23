@@ -1,6 +1,7 @@
 import './App.css';
 import { Link, ImmutableXClient } from '@imtbl/imx-sdk';
 import { useEffect, useState } from 'react';
+import DiscordProfile from './DiscordProfile';
 
 function App() {
   // async function sdkExample() {
@@ -35,18 +36,8 @@ function App() {
         })
         .then(result => result.json())
         .then(response => {
-          // response format 
-          /*
-          {
-                "id": "<user_id>",
-                "username": "Poopeye",
-                "avatar": "3118e64af30fc703b9bf3328d156155c",
-                ...
-            }
-          */
-          // user as avatar URL: `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
           setDiscordUser(response);
-          console.log(discordUser);
+          console.log(response);
         })
         .catch(console.error);
     };
@@ -59,9 +50,8 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {/* <button onClick={sdkExample}>TEST</button>
-        <p>You own: {assets.length} items.</p> */}
       </header>
+      {discordUser ? <DiscordProfile user={discordUser}/> : <p>Oops... Something went wrong.</p>}
     </div>
   );
 }
