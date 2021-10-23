@@ -50,8 +50,8 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        {discordUser ? <DiscordProfile user={discordUser}/> : <p>Oops... Something went wrong.</p>}
       </header>
-      {discordUser ? <DiscordProfile user={discordUser}/> : <p>Oops... Something went wrong.</p>}
     </div>
   );
 }
