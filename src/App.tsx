@@ -34,7 +34,7 @@ function App() {
   }
 
   async function verifyUser(imxAddress: string, userId: string) {
-    await fetch(`https://fynngin.api.stdlib.com/greenpark-nft-verification@dev?user=${userId}&address=${imxAddress}`, {
+    await fetch(`https://fynngin.api.stdlib.com/greenpark-nft-verification@dev/nft-role-grant?user=${userId}&address=${imxAddress}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
