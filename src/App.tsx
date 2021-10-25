@@ -19,19 +19,18 @@ function App() {
   const [pageStatus, setPageStatus] = useState(PageStatus.Initializing);
 
   async function handleConnectButtonClick() {
-    const address = await getImxAddress();
-    verifyUser(address, discordUser.id);
-  }
-
-  function getImxAddress(): string {
-    const link = new Link('https://link.x.immutable.com');
-    link.setup({}).then(({address}) => {
+    startImxProcess().then(({address}) => {
       setPageStatus(PageStatus.ImxConnected);
-      return address;
+      verifyUser(address, discordUser.id);
     }).catch(() => {
       setPageStatus(PageStatus.ImxError);
     })
-    return '';
+
+  }
+
+  function startImxProcess(): Promise<{address: string, starkPublicKey: string}> {
+    const link = new Link('https://link.x.immutable.com');
+    return link.setup({});
   }
 
   async function verifyUser(imxAddress: string, userId: string) {
