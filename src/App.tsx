@@ -4,18 +4,34 @@ import { useEffect, useState } from 'react';
 import DiscordProfile, { DiscordUser } from './DiscordProfile';
 import styles from './connectBtnStyle.module.css';
 
+enum PageStatus {
+  Initializing,
+  DiscordError,
+  DiscordConnected,
+  ImxError,
+  ImxConnected,
+  RoleGrantingError,
+  RoleGranted
+}
+
 function App() {
   const [discordUser, setDiscordUser] = useState({} as DiscordUser);
+  const [pageStatus, setPageStatus] = useState(PageStatus.Initializing);
 
   async function handleConnectButtonClick() {
     const address = await getImxAddress();
     verifyUser(address, discordUser.id);
   }
 
-  async function getImxAddress(): Promise<string> {
+  function getImxAddress(): string {
     const link = new Link('https://link.x.immutable.com');
-    const { address } = await link.setup({});
-    return address;
+    link.setup({}).then(({address}) => {
+      setPageStatus(PageStatus.ImxConnected);
+      return address;
+    }).catch(() => {
+      setPageStatus(PageStatus.ImxError);
+    })
+    return '';
   }
 
   async function verifyUser(imxAddress: string, userId: string) {
@@ -24,6 +40,10 @@ function App() {
       headers: {
         'Content-Type': 'application/json'
       }
+    }).then(() => {
+      setPageStatus(PageStatus.RoleGranted);
+    }).catch(() => {
+      setPageStatus(PageStatus.RoleGrantingError);
     })
   }
 
@@ -41,28 +61,54 @@ function App() {
         .then(result => result.json())
         .then(response => {
           setDiscordUser(response);
+          setPageStatus(PageStatus.DiscordConnected)
         })
-        .catch(console.error);
+        .catch(() => {
+          setPageStatus(PageStatus.DiscordError);
+          console.error()
+        });
     };
 
     if (accessToken) {
       fetchUsers();
+    } else {
+      setPageStatus(PageStatus.DiscordError);
     }
   }, []);
+
+  function switchContents() {
+    switch (pageStatus) {
+      case PageStatus.Initializing:
+        return(<p>Getting discord information...</p>)
+      case PageStatus.DiscordError:
+        return(<p>There was an error linking your Discord account. Please try again.</p>)
+      case PageStatus.DiscordConnected:
+        return(
+          <>
+            <DiscordProfile user={discordUser}/>
+            <button className={styles.square_btn} onClick={() => handleConnectButtonClick()}>
+              <h2 className={styles.connectBtnText}>Connect</h2>
+              <img className={styles.imx_logo} src={`${process.env.PUBLIC_URL}/imx_logo.svg`} alt='ImmutableX Logo'/>
+            </button>
+          </>
+        )
+      case PageStatus.ImxError:
+        return(<p>There was an error linking your Immutable Wallet. Please try again.</p>)
+      case PageStatus.ImxConnected:
+        return(<p>Immutable Wallet connected! Checking assets and granting the role...</p>)
+      case PageStatus.RoleGrantingError:
+        return(<p>Couldn't grant the Discord Role. Do you own a Greenpark NFT?</p>)
+      case PageStatus.RoleGranted:
+        return(<p>Role successfully granted! Enjoy :)</p>)
+      default:
+        return(<p>An unknown error occured. Please try again.</p>);
+    }
+  }
 
   return (
     <div className="App">
       <header className="App-header">
-        {discordUser.id 
-          ? <>
-              <DiscordProfile user={discordUser}/>
-              <button className={styles.square_btn} onClick={() => handleConnectButtonClick()}>
-                <h2 className={styles.connectBtnText}>Connect</h2>
-                <img className={styles.imx_logo} src={`${process.env.PUBLIC_URL}/imx_logo.svg`} alt='ImmutableX Logo'/>
-                </button>
-            </> 
-          : <p>Oops... Something went wrong with the Discord Authentication.</p>
-        }
+        {switchContents()}
       </header>
     </div>
   );
