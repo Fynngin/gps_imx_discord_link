@@ -1,28 +1,32 @@
 import './App.css';
-import { Link, ImmutableXClient } from '@imtbl/imx-sdk';
+import { Link } from '@imtbl/imx-sdk';
 import { useEffect, useState } from 'react';
-import DiscordProfile from './DiscordProfile';
+import DiscordProfile, { DiscordUser } from './DiscordProfile';
+import styles from './connectBtnStyle.module.css';
 
 function App() {
-  // async function sdkExample() {
-  //   const imxAddress = '0x4764bc088a27f490353e8cf1558ba02fdc418c65';
-  //   const link = new Link('https://link.x.immutable.com');
+  const [discordUser, setDiscordUser] = useState({} as DiscordUser);
 
-  //   // Register user, you can persist address to local storage etc.
-  //   const { address } = await link.setup({});
-  //   console.log(address);
-  //   const client = await ImmutableXClient.build({ publicApiUrl: 'https://api.x.immutable.com/v1' });
-  //   const assets = await client.getAssets({
-  //           user: address,
-  //           collection: imxAddress
-  //   });
-  //   console.log(assets);
-  //   setAssets(assets.result);
-  // }
+  async function handleConnectButtonClick() {
+    const address = await getImxAddress();
+    verifyUser(address, discordUser.id);
+  }
 
-  // const [assets, setAssets] = useState([] as any);
+  async function getImxAddress(): Promise<string> {
+    const link = new Link('https://link.x.immutable.com');
+    const { address } = await link.setup({});
+    return address;
+  }
 
-  const [discordUser, setDiscordUser] = useState();
+  async function verifyUser(imxAddress: string, userId: string) {
+    await fetch(`https://fynngin.api.stdlib.com/greenpark-nft-verification@dev?user=${userId}&address=${imxAddress}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+  }
+
 
   useEffect(() => {
     // parse access_token and token_type that were inserted by Discord into redirect URL
@@ -37,7 +41,6 @@ function App() {
         .then(result => result.json())
         .then(response => {
           setDiscordUser(response);
-          console.log(response);
         })
         .catch(console.error);
     };
@@ -50,7 +53,16 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {discordUser ? <DiscordProfile user={discordUser}/> : <p>Oops... Something went wrong.</p>}
+        {discordUser.id 
+          ? <>
+              <DiscordProfile user={discordUser}/>
+              <button className={styles.square_btn} onClick={() => handleConnectButtonClick()}>
+                <h2 className={styles.connectBtnText}>Connect</h2>
+                <img className={styles.imx_logo} src={`${process.env.PUBLIC_URL}/imx_logo.svg`} alt='ImmutableX Logo'/>
+                </button>
+            </> 
+          : <p>Oops... Something went wrong with the Discord Authentication.</p>
+        }
       </header>
     </div>
   );

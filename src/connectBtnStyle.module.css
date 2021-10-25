@@ -1,0 +1,28 @@
+.square_btn {
+    padding: 0.25em 0.5em;
+    color: #FFF;
+    background: #00e6ae;
+    transition: .4s;
+    border: none;
+    border-radius: 10px;
+    outline: none;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    cursor: pointer;
+  }
+
+.square_btn:hover {
+    background: #1ec7bb;
+}
+
+.connectBtnText {
+  display: inline;
+}
+
+.imx_logo {
+  height: 70%;
+  filter: brightness(0.5);
+}

@@ -1,4 +1,4 @@
-interface DiscordUser {
+export interface DiscordUser {
     accent_color?: string
     avatar: string
     banner?: string
@@ -13,10 +13,16 @@ interface DiscordUser {
 }
 
 export default function DiscordProfile({user}: {user: DiscordUser}) {
+    const avatarStyles = {
+        width: '150px',
+        height: '150px',
+        borderRadius: '100%'
+    };
+
     return(
         <div>
-            <img src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}/>
-            <h1>Hello {user.username}</h1>
+            <img style={avatarStyles} src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} alt='User Avatar'/>
+            <h2>Hello {user.username}</h2>
         </div>
     )
 }
