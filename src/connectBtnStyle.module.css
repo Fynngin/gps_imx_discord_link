@@ -7,6 +7,7 @@
     border-radius: 10px;
     outline: none;
     height: 50px;
+    width: 200px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -25,4 +26,13 @@
 .imx_logo {
   height: 70%;
   filter: brightness(0.5);
+}
+
+.kolectiv_input {
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 10px;
+  height: 25px;
+  padding: 0.5em;
+  width: 200px;
 }

@@ -12,12 +12,16 @@ enum PageStatus {
   ImxError,
   ImxConnected,
   RoleGrantingError,
-  RoleGranted
+  RoleGranted,
+  EthAddrDoesntMatchKolectiv,
+  NoAssets,
+  KolectivUserNotFound
 }
 
 function App() {
   const [discordUser, setDiscordUser] = useState({} as DiscordUser);
   const [pageStatus, setPageStatus] = useState(PageStatus.Initializing);
+  const [kolectivUsername, setKolectivUsername] = useState('');
 
   async function handleConnectButtonClick() {
     startImxProcess().then(({address}) => {
@@ -35,15 +39,40 @@ function App() {
   }
 
   async function verifyUser(imxAddress: string, userId: string) {
-    await axios.post(`https://fynngin.api.stdlib.com/greenpark-nft-verification@dev/nft_role_grant?user=${userId}&address=${imxAddress}`, {
+    await axios({
+      url: `https://fynngin.api.stdlib.com/greenpark-nft-verification@dev/nft_role_grant`,
+      data: JSON.stringify({
+        user: userId,
+        address: imxAddress,
+        kolectivUser: kolectivUsername
+      }),
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'content-type': 'application/json'
       }
     }).then(() => {
       setPageStatus(PageStatus.RoleGranted);
-    }).catch(() => {
-      setPageStatus(PageStatus.RoleGrantingError);
+    }).catch(({ response }) => {
+      const err_code = response.data.error.err_code;
+      switch(err_code) {
+        case 'eth_addr_no_match':
+          setPageStatus(PageStatus.EthAddrDoesntMatchKolectiv);
+          break;
+        case 'no_assets':
+          setPageStatus(PageStatus.NoAssets);
+          break;
+        case 'no_imx_address':
+          setPageStatus(PageStatus.ImxError);
+          break;
+        case 'kolectiv_user_not_found':
+          setPageStatus(PageStatus.KolectivUserNotFound);
+          break;
+        case 'no_discord_user':
+          setPageStatus(PageStatus.DiscordError);
+          break;
+        default:
+          setPageStatus(PageStatus.RoleGrantingError);
+      }
     })
   }
 
@@ -86,10 +115,25 @@ function App() {
         return(
           <>
             <DiscordProfile user={discordUser}/>
-            <button className={styles.square_btn} onClick={() => handleConnectButtonClick()}>
-              <h2 className={styles.connectBtnText}>Connect</h2>
-              <img className={styles.imx_logo} src={`${process.env.PUBLIC_URL}/imx_logo.svg`} alt='ImmutableX Logo'/>
-            </button>
+            <form onSubmit={() => handleConnectButtonClick()}>
+              <div>
+                <input 
+                  className={styles.kolectiv_input} 
+                  required 
+                  type='text' 
+                  id='kolectiv-input' 
+                  placeholder='Kolectiv Username'
+                  onChange={e => setKolectivUsername(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <button type='submit' className={styles.square_btn} >
+                  <h2 className={styles.connectBtnText}>Connect</h2>
+                  <img className={styles.imx_logo} src={`${process.env.PUBLIC_URL}/imx_logo.svg`} alt='ImmutableX Logo'/>
+                </button>
+              </div>
+            </form>
           </>
         )
       case PageStatus.ImxError:
@@ -98,6 +142,12 @@ function App() {
         return(<p>Immutable Wallet connected! Checking assets and granting the role...</p>)
       case PageStatus.RoleGrantingError:
         return(<p>Couldn't grant the Discord Role. Do you own a Greenpark NFT?</p>)
+      case PageStatus.KolectivUserNotFound:
+        return(<p>We couldn't find that Kolectiv user :( Maybe a typo?</p>)
+      case PageStatus.EthAddrDoesntMatchKolectiv:
+        return(<p>Your Ethereum Address doesn't match the given Kolectiv user.</p>)
+      case PageStatus.NoAssets:
+        return(<p>Seems like you don't own any Greenpark NFTs :(</p>)
       case PageStatus.RoleGranted:
         return(<p>Role successfully granted! Enjoy :)</p>)
       default:
