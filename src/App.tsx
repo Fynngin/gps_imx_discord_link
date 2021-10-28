@@ -3,6 +3,7 @@ import { Link } from '@imtbl/imx-sdk';
 import { useEffect, useState } from 'react';
 import DiscordProfile, { DiscordUser } from './DiscordProfile';
 import styles from './connectBtnStyle.module.css';
+import axios from 'axios';
 
 enum PageStatus {
   Initializing,
@@ -34,7 +35,7 @@ function App() {
   }
 
   async function verifyUser(imxAddress: string, userId: string) {
-    await fetch(`https://fynngin.api.stdlib.com/greenpark-nft-verification@dev/nft_role_grant?user=${userId}&address=${imxAddress}`, {
+    await axios.post(`https://fynngin.api.stdlib.com/greenpark-nft-verification@dev/nft_role_grant?user=${userId}&address=${imxAddress}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
