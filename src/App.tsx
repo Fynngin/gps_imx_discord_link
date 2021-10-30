@@ -155,9 +155,14 @@ function App() {
     }
   }
 
+  function pageStatusIsComplete() {
+    return [PageStatus.NoAssets, PageStatus.RoleGranted].includes(pageStatus);
+  }
+
   return (
     <div className="App">
       <header className="App-header">
+        {pageStatusIsComplete() ? <p>Wallet linked!</p> : <></>}
         {switchContents()}
       </header>
     </div>
