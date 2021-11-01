@@ -42,7 +42,7 @@ function App() {
     await axios({
       url: `https://fynngin.api.stdlib.com/greenpark-nft-verification@dev/nft_role_grant`,
       data: JSON.stringify({
-        user: userId,
+        discordUser: discordUser,
         address: imxAddress,
         kolectivUser: kolectivUsername
       }),
