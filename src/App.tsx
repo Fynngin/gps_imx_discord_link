@@ -21,7 +21,7 @@ enum PageStatus {
 function App() {
   const [discordUser, setDiscordUser] = useState({} as DiscordUser);
   const [pageStatus, setPageStatus] = useState(PageStatus.Initializing);
-  const [kolectivUsername, setKolectivUsername] = useState('');
+  // const [kolectivUsername, setKolectivUsername] = useState('');
 
   async function handleConnectButtonClick() {
     startImxProcess().then(({address}) => {
@@ -44,7 +44,7 @@ function App() {
       data: JSON.stringify({
         discordUser: discordUser,
         address: imxAddress,
-        kolectivUser: kolectivUsername
+        // kolectivUser: kolectivUsername
       }),
       method: 'POST',
       headers: {
@@ -116,7 +116,7 @@ function App() {
           <>
             <DiscordProfile user={discordUser}/>
             <form onSubmit={() => handleConnectButtonClick()}>
-              <div>
+              {/* <div>
                 <input 
                   className={styles.kolectiv_input} 
                   required 
@@ -125,7 +125,7 @@ function App() {
                   placeholder='Kolectiv Username'
                   onChange={e => setKolectivUsername(e.target.value)}
                 />
-              </div>
+              </div> */}
 
               <div>
                 <button type='submit' className={styles.square_btn} >
